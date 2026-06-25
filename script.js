@@ -8,6 +8,10 @@ const categories = [
     { name: "Home", icon: "🏠" }
 ];
 
+const content = document.getElementById("content");
+const backBtn = document.getElementById("backBtn");
+const search = document.getElementById("search");
+
 let products = [];
 
 let currentCategory = null;
@@ -29,37 +33,29 @@ async function loadProducts() {
 
     rows.forEach(row => {
 
-    if (!row.trim()) return;
+        if (!row.trim()) return;
 
-    const cols = row.split(",");
+        const cols = row.split(",");
 
-    if (cols.length < 5) return;
+        if (cols.length < 5) return;
 
-    products.push({
+        products.push({
 
-        category: cols[0].trim().replace(/"/g, ""),
-        subcategory: cols[1].trim().replace(/"/g, ""),
-        brand: cols[2].trim().replace(/"/g, ""),
-        name: cols[3].trim().replace(/"/g, ""),
-        link: cols.slice(4).join(",").trim().replace(/"/g, "")
+            category: cols[0].trim().replace(/"/g, ""),
+            subcategory: cols[1].trim().replace(/"/g, ""),
+            brand: cols[2].trim().replace(/"/g, ""),
+            name: cols[3].trim().replace(/"/g, ""),
+            link: cols.slice(4).join(",").trim().replace(/"/g, "")
+
+        });
 
     });
-
-});   // <-- tutup forEach
-
-console.log(products);
-
-showCategories();
 
     console.log(products);
 
     showCategories();
 
-}
-
-const content = document.getElementById("content");
-const backBtn = document.getElementById("backBtn");
-const search = document.getElementById("search");
+}  
 
 function showCategories() {
 
@@ -167,28 +163,22 @@ function showProducts(category, subcategory = null){
     currentSubCategory = subcategory;
 
     backBtn.style.display = "inline-block";
-
     content.innerHTML = "";
 
     let filtered;
 
     if(subcategory){
 
-    filtered = products.filter(p =>
+        filtered = products.filter(p =>
+            p.category === category &&
+            p.subcategory === subcategory
+        );
 
-        p.category === category &&
-        p.subcategory === "-"
-
-    );
-
-    }
-
-    else{
+    }else{
 
         filtered = products.filter(p =>
-
-            p.category === category
-
+            p.category === category &&
+            (p.subcategory === "-" || p.subcategory === "")
         );
 
     }
@@ -210,10 +200,10 @@ function showProducts(category, subcategory = null){
                 </div>
 
                 <button
-                class="open-btn"
-                onclick="window.open('${product.link}','_blank')">
+                    class="open-btn"
+                    onclick="window.open('${product.link}','_blank')">
 
-                🛒 Open Shopee
+                    🛒 Open Shopee
 
                 </button>
 
