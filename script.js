@@ -127,20 +127,17 @@ function showSubCategories(category){
     content.innerHTML = "";
 
     const subs = [...new Set(
-
         products
-        .filter(p => p.category === category && p.subcategory !== "-")
+        .filter(p => p.category === category)
         .map(p => p.subcategory)
-
+        .filter(sub => sub !== "-")
     )];
 
     subs.forEach(sub => {
 
         const total = products.filter(p =>
-
             p.category === category &&
             p.subcategory === sub
-
         ).length;
 
         content.innerHTML += `
@@ -148,9 +145,7 @@ function showSubCategories(category){
         <div class="col-md-4">
 
             <div class="card-item"
-                 onclick="showProducts('${category}','${sub}')">
-
-                <div class="icon">📂</div>
+                onclick="showProducts('${category}','${sub}')">
 
                 <div class="name">${sub}</div>
 
@@ -179,12 +174,12 @@ function showProducts(category, subcategory = null){
 
     if(subcategory){
 
-        filtered = products.filter(p =>
+    filtered = products.filter(p =>
 
-            p.category === category &&
-            p.subcategory === subcategory
+        p.category === category &&
+        p.subcategory === "-"
 
-        );
+    );
 
     }
 
