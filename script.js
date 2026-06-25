@@ -1,5 +1,5 @@
 const categories = [
-    { name: "Coffee", icon: "☕" },
+    { name: "Drinks", icon: "☕" },
     { name: "Beauty", icon: "💄" },
     { name: "Electronics", icon: "🔌" },
     { name: "Gaming", icon: "🎮" },
