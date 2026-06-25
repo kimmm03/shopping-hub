@@ -12,33 +12,40 @@ let products = [];
 const CSV_URL =
 "https://docs.google.com/spreadsheets/d/e/2PACX-1vR5a6aGSfFO9ZJInYdoyl3aoWcbYNMnV-ZJaNW11UXU2Ty7fKCEIMxgRt1kxh27hFt8gs4UqsLEvsnb/pub?output=csv";
 
-async function loadProducts(){
+async function loadProducts() {
 
     const response = await fetch(CSV_URL);
-
     const csv = await response.text();
 
-    const rows = csv.trim().split("\n");
+    const rows = csv.trim().split(/\r?\n/);
 
-    const headers = rows.shift();
+    rows.shift();
 
-    products = rows.map(row=>{
+    products = [];
 
-        const cols = row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
+    rows.forEach(row => {
 
-        return{
+        if (!row.trim()) return;
 
-            category: cols[0].replace(/"/g,""),
+        const cols = row.split(",");
 
-            brand: cols[1].replace(/"/g,""),
+        if (cols.length < 4) return;
 
-            name: cols[2].replace(/"/g,""),
+        products.push({
 
-            link: cols[3].replace(/"/g,"")
+            category: cols[0].trim().replace(/"/g, ""),
 
-        };
+            brand: cols[1].trim().replace(/"/g, ""),
+
+            name: cols[2].trim().replace(/"/g, ""),
+
+            link: cols.slice(3).join(",").trim().replace(/"/g, "")
+
+        });
 
     });
+
+    console.log(products);
 
     showCategories();
 
