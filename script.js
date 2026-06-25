@@ -1,6 +1,7 @@
 const categories = [
     { name: "Drinks", icon: "☕" },
     { name: "Beauty", icon: "💄" },
+    { name: "Clothing", icon: "👕" },
     { name: "Electronics", icon: "🔌" },
     { name: "Gaming", icon: "🎮" },
     { name: "Food", icon: "🍜" },
@@ -8,6 +9,9 @@ const categories = [
 ];
 
 let products = [];
+
+let currentCategory = null;
+let currentSubCategory = null;
 
 const CSV_URL =
 "https://docs.google.com/spreadsheets/d/e/2PACX-1vR5a6aGSfFO9ZJInYdoyl3aoWcbYNMnV-ZJaNW11UXU2Ty7fKCEIMxgRt1kxh27hFt8gs4UqsLEvsnb/pub?output=csv";
@@ -25,25 +29,27 @@ async function loadProducts() {
 
     rows.forEach(row => {
 
-        if (!row.trim()) return;
+    if (!row.trim()) return;
 
-        const cols = row.split(",");
+    const cols = row.split(",");
 
-        if (cols.length < 4) return;
+    if (cols.length < 5) return;
 
-        products.push({
+    products.push({
 
-            category: cols[0].trim().replace(/"/g, ""),
-
-            brand: cols[1].trim().replace(/"/g, ""),
-
-            name: cols[2].trim().replace(/"/g, ""),
-
-            link: cols.slice(3).join(",").trim().replace(/"/g, "")
-
-        });
+        category: cols[0].trim().replace(/"/g, ""),
+        subcategory: cols[1].trim().replace(/"/g, ""),
+        brand: cols[2].trim().replace(/"/g, ""),
+        name: cols[3].trim().replace(/"/g, ""),
+        link: cols.slice(4).join(",").trim().replace(/"/g, "")
 
     });
+
+});   // <-- tutup forEach
+
+console.log(products);
+
+showCategories();
 
     console.log(products);
 
@@ -69,7 +75,7 @@ function showCategories() {
         
         <div class="col-md-4">
 
-            <div class="card-item" onclick="showProducts('${category.name}')">
+            <div class="card-item" onclick="openCategory('${category.name}')">
 
                 <div class="icon">${category.icon}</div>
 
@@ -87,13 +93,110 @@ function showCategories() {
 
 }
 
-function showProducts(category){
+function openCategory(category){
+
+    const hasSub = products.some(p =>
+
+        p.category === category &&
+
+        p.subcategory !== "-"
+
+    );
+
+    if(hasSub){
+
+        showSubCategories(category);
+
+    }
+
+    else{
+
+        showProducts(category);
+
+    }
+
+}
+
+function showSubCategories(category){
+
+    currentCategory = category;
+    currentSubCategory = null;
 
     backBtn.style.display = "inline-block";
 
     content.innerHTML = "";
 
-    const filtered = products.filter(p => p.category === category);
+    const subs = [...new Set(
+
+        products
+        .filter(p => p.category === category && p.subcategory !== "-")
+        .map(p => p.subcategory)
+
+    )];
+
+    subs.forEach(sub => {
+
+        const total = products.filter(p =>
+
+            p.category === category &&
+            p.subcategory === sub
+
+        ).length;
+
+        content.innerHTML += `
+
+        <div class="col-md-4">
+
+            <div class="card-item"
+                 onclick="showProducts('${category}','${sub}')">
+
+                <div class="icon">📂</div>
+
+                <div class="name">${sub}</div>
+
+                <div class="count">${total} Products</div>
+
+            </div>
+
+        </div>
+
+        `;
+
+    });
+
+}
+
+function showProducts(category, subcategory = null){
+
+    currentCategory = category;
+    currentSubCategory = subcategory;
+
+    backBtn.style.display = "inline-block";
+
+    content.innerHTML = "";
+
+    let filtered;
+
+    if(subcategory){
+
+        filtered = products.filter(p =>
+
+            p.category === category &&
+            p.subcategory === subcategory
+
+        );
+
+    }
+
+    else{
+
+        filtered = products.filter(p =>
+
+            p.category === category
+
+        );
+
+    }
 
     filtered.forEach(product=>{
 
@@ -129,7 +232,18 @@ function showProducts(category){
 
 }
 
-backBtn.addEventListener("click",()=>{
+backBtn.addEventListener("click", () => {
+
+    if(currentSubCategory){
+
+        showSubCategories(currentCategory);
+
+        return;
+
+    }
+
+    currentCategory = null;
+    currentSubCategory = null;
 
     showCategories();
 
@@ -198,4 +312,4 @@ search.addEventListener("keyup",()=>{
 
 });
 
-loadProducts();;
+loadProducts();
